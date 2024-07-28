@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfect Pizza Cart</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div x-data="pizzaCart()">
+        <h1>Perfect Pizza</h1>
+        <img src="images/pizza.png.jpeg" alt="Pizza Image" class="header-image">
+        <div class="cart">
+            <h2>Shopping Cart</h2>
+            <div>
+                <div>Small <button @click="addPizza('small')">+</button> <button @click="removePizza('small')">-</button> <span x-text="cart.small.quantity"></span> x R31.99</div>
+                <div>Medium <button @click="addPizza('medium')">+</button> <button @click="removePizza('medium')">-</button> <span x-text="cart.medium.quantity"></span> x R58.99</div>
+                <div>Large <button @click="addPizza('large')">+</button> <button @click="removePizza('large')">-</button> <span x-text="cart.large.quantity"></span> x R87.99</div>
+                <div>Total cost: R <span x-text="totalCost.toFixed(2)"></span></div>
+            </div>
+            <button x-show="totalCost > 0" @click="startCheckout()">Check out</button>
+        </div>
+        <div x-show="showPayment" class="payment">
+            <h2>Enter Payment Amount</h2>
+            <input type="number" x-model.number="paymentAmount" placeholder="Enter amount">
+            <button @click="processPayment()">Submit Payment</button>
+        </div>
+        <div x-show="message" class="message" :class="messageClass" x-text="message"></div>
+        <div class="pizza-options">
+            <div class="pizza">
+                <h3>Large Pizza</h3>
+                <p>R87.99</p>
+                <button @click="addPizza('large')">Order</button>
+            </div>
+            <div class="pizza">
+                <h3>Medium Pizza</h3>
+                <p>R58.99</p>
+                <button @click="addPizza('medium')">Order</button>
+            </div>
+            <div class="pizza">
+                <h3>Small Pizza</h3>
+                <p>R31.99</p>
+                <button @click="addPizza('small')">Order</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function pizzaCart() {
+            return {
+                cart: {
+                    small: { quantity: 0, price: 0, unitPrice: 31.99 },
+                    medium: { quantity: 0, price: 0, unitPrice: 58.99 },
+                    large: { quantity: 0, price: 0, unitPrice: 87.99 }
+                },
+                paymentAmount: 0,
+                showPayment: false,
+                message: '',
+                messageClass: '',
+                get totalCost() {
+                    return this.cart.small.quantity * this.cart.small.unitPrice +
+                           this.cart.medium.quantity * this.cart.medium.unitPrice +
+                           this.cart.large.quantity * this.cart.large.unitPrice;
+                },
+                addPizza(size) {
+                    this.cart[size].quantity++;
+                },
+                removePizza(size) {
+                    if (this.cart[size].quantity > 0) {
+                        this.cart[size].quantity--;
+                    }
+                },
+                startCheckout() {
+                    this.showPayment = true;
+                },
+                processPayment() {
+                    if (this.paymentAmount >= this.totalCost) {
+                        this.message = "Enjoy your pizzas!";
+                        this.messageClass = "success";
+                        this.clearCart();
+                    } else {
+                        this.message = "Sorry - that is not enough money!";
+                        this.messageClass = "error";
+                    }
+                    this.showPayment = false;
+                    this.hideMessage();
+                },
+                clearCart() {
+                    for (let size in this.cart) {
+                        this.cart[size].quantity = 0;
+                    }
+                },
+                hideMessage() {
+                    setTimeout(() => {
+                        this.message = '';
+                    }, 3000);
+                }
+            };
+        }
+    </script>
+</body>
+</html>
